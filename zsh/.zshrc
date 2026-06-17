@@ -226,7 +226,9 @@ export editor = "nvim"
 path+=('$HOME/.local/bin')
 # source z plugin
 # . ./z.sh
-eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/protein5/dotfiles/refs/heads/main/p53.omp.json)"
+# Use below if the github oh my posh config failed to work
+# eval "$(oh-my-posh init zsh --config ~/p53.omp.json)"
+eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/protein53/dotfiles/refs/heads/main/zsh/p53.omp.json)"
 
 # Custom Functions
 function qfind() {

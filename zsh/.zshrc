@@ -19,14 +19,14 @@ precmd() {  # run before each prompt
 ##
 # Prompt
 ##
-setopt PROMPT_SUBST     # allow funky stuff in prompt
-color="blue"
-if [ "$USER" = "root" ]; then
-    color="red"         # root is red, user is blue
-fi;
-prompt='%{%K{blue}%}%{%F{white}%}%d%{$my_branch%}%{%F{red}%}%{$my_portion%}%{%F{white}%}%{$my_close%}%{$reset_color%}
-%{$reset_color%}%{⊳%} '
-RPROMPT='$FG[237]%n@%m%{$reset_color%}'
+# setopt PROMPT_SUBST     # allow funky stuff in prompt
+# color="blue"
+# if [ "$USER" = "root" ]; then
+#    color="red"         # root is red, user is blue
+# fi;
+# prompt='%{%K{blue}%}%{%F{white}%}%d%{$my_branch%}%{%F{red}%}%{$my_portion%}%{%F{white}%}%{$my_close%}%{$reset_color%}
+# %{$reset_color%}%{⊳%} '
+# RPROMPT='$FG[237]%n@%m%{$reset_color%}'
 
 bindkey -v                      # vi keybinding
 export KEYTIMEOUT=1
@@ -122,7 +122,7 @@ TERM=xterm-256color             # Colorz!
 export TZ='Europe/Paris'		# Excuse my french
 export GCC_COLORS=1				# Colorz in gcc!
 unset LD_PRELOAD				# Meh.
-export EDITOR=vim				# Meh.
+export EDITOR=nvim				# Meh.
 
 if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
   exec tmux
@@ -139,8 +139,8 @@ alias lsd='ls -d */'
 alias lr='g() {ls -lt **/*$1*};g'
 alias lsz='f() {ls -lh **/*(Lm+$1)};f'
 alias lsp='ls -lt *py | more -30'
-alias viml='vim *(om[1])'
-alias vimp='vim *.py(om[1])'
+alias viml='nvim *(om[1])'
+alias vimp='nvim *.py(om[1])'
 alias popl='populate *.DAT(om[1])'
 alias mkdirq='h() {mkdir -p $1 && cd $_ };h'
 alias rtree='watch tree'
@@ -179,26 +179,59 @@ alias 7='cd -7'
 alias 8='cd -8'
 
 # Default application based on file extensions
-alias -s py=vim
-alias -s txt=vim
-alias -s csv=vim
-alias -s dat=vim
-alias -s DAT=vim
-alias -s SKM=vim
-alias -s cal=vim
-alias -s prn=vim
+alias -s py=nvim
+alias -s txt=nvim
+alias -s csv=nvim
+alias -s dat=nvim
+alias -s DAT=nvim
+alias -s SKM=nvim
+alias -s cal=nvim
+alias -s prn=nvim
 autoload -U zmv
 alias mmv='noglob zmv -W'
 alias -s log="tail -f"
 
+# fzy fzy fzy fzy
+# ALT-C: cd into the selected directory
+# CTRL-T: Place the selected file path in the command line
+# CTRL-R: Place the selected command from history in the command line
+# CTRL-P: Place the selected process ID in the command line
+bindkey '\ec' fzy-cd-widget
+bindkey '^T'  fzy-file-widget
+bindkey '^R'  fzy-history-widget
+bindkey '^P'  fzy-proc-widget
+zstyle :fzy:tmux    enabled      no
+
+zstyle :fzy:history show-scores  no
+zstyle :fzy:history lines        50
+zstyle :fzy:history prompt       'history >> '
+zstyle :fzy:history command      fzy-history-default-command
+
+zstyle :fzy:file    show-scores  no
+zstyle :fzy:file    lines        50
+zstyle :fzy:file    prompt       'file >> '
+zstyle :fzy:file    command      fzy-file-default-command
+
+zstyle :fzy:cd      show-scores  no
+zstyle :fzy:cd      lines        50
+zstyle :fzy:cd      prompt       'cd >> '
+zstyle :fzy:cd      command      fzy-cd-default-command
+
+zstyle :fzy:proc    show-scores  no
+zstyle :fzy:proc    lines        50
+zstyle :fzy:proc    prompt       'proc >> '
+zstyle :fzy:proc    command      fzy-proc-default-command
+export terminal="st"
+export editor = "nvim"
+path+=('$HOME/.local/bin')
 # source z plugin
 # . ./z.sh
+eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/protein5/dotfiles/refs/heads/main/p53.omp.json)"
 
 # Custom Functions
 function qfind() {
     /usr/bin/find -name "*$@*" -print 2>/dev/null
 }
-
 
 # use tmux as default shell
 if command -v tmux > /dev/null; then

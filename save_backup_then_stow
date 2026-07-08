@@ -1,0 +1,74 @@
+#!/usr/bin/xonsh
+# Usage:
+# Assumption here is that your stow directory is in ~/dotfiles and
+# 'save_backup_then_stow' (this bash script) is inside this stow directory.
+# 1. cd ~/dotfiles
+# 2. xonsh save_backup_then_stow --> this will create 'origdot' in your home folder
+#     organized like this, to backup existing dotfiles with conflict with
+#     these dot files.
+#     ~/origdot/
+#         └── unlink_then_restore
+#         └── server_defaults/
+#             ├── zsh/
+#             |   └── .zshrc
+#             |   └── .vimrc
+#             |   └── .tmux.conf
+#             └── nvim/
+#                 └── .conf/
+#                     └── init.lua
+# 3. At the same time, this will symlink your favorite dot files,
+# 4.  Use the system. All your dot files are now in effect.
+#     When you are done and want to restore the original
+#     dot files, go to step 5.
+# 5.  cd ~/origdot
+#     xonsh unlink_then_restore
+#     This will now restore the original dot files via soft links
+
+from pathlib import Path
+import glob
+import shutil
+# Exit immediately if a command exits with a non-zero status
+$XONSH_SUBPROC_CMD_RAISE_ERROR = True
+$XONSH_SHOW_TRACEBACK = True
+# Configuration
+home = ${'HOME'}
+DOTFILES_DIR = home + "/dotfiles"
+BACKUP_DIR = home + "/origdot"
+print(f"{DOTFILES_DIR=}")
+
+# Ensure we are running from the dotfiles directory
+if not Path(DOTFILES_DIR).exists():
+    print(f"Error: {DOTFILES_DIR} does not exist.")
+    exit 1
+
+cd @(DOTFILES_DIR)
+
+echo "Scanning for conflicting original dotfiles..."
+
+for dir in g`*/`:
+    print(f"processing {dir}:")
+    for path in Path(dir).rglob('*'):
+        if not path.is_file():
+            continue
+        first, *rest = str(path).split('/')
+        target = Path('/'.join([home, *rest]))
+        if not target.exists():
+            continue
+        print(f"\t{target=} exists")
+        if target.is_symlink():
+            print(f"\t\t{target=} was unlinked")
+            target.unlink()
+        else:
+            destination = Path('/'.join([BACKUP_DIR, str(path)]))
+            print(f"\t\tmoving to --> {destination}")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            target.replace(destination)
+    stow @(dir)
+source = Path('/'.join([DOTFILES_DIR, 'unlink_then_restore']))
+destination = Path(home + '/origdot/unlink_then_restore')
+shutil.copy(source, destination)
+
+echo "--------------------------------------------------------"
+echo @(f"Scan complete. Conflicting originals moved to {BACKUP_DIR}")
+echo "Your preferred dot files are not properly linked"
+echo @(f"To restore later, run 'xonsh unlink_then_restore' inside {BACKUP_DIR}")

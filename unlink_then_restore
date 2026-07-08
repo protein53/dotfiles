@@ -1,0 +1,58 @@
+#!/usr/bin/xonsh
+# Usage:
+# Assumption here is that your original dot files are stored
+# in ~/origdot/, created previously by running save_backup_then_stow.
+# origdot is organized like this
+#     ~/origdot/
+#         └── unlink_then_restore
+#         └── server_defaults/
+#             ├── zsh/
+#             |   └── .zshrc
+#             |   └── .vimrc
+#             |   └── .tmux.conf
+#             └── nvim/
+#                 └── .conf/
+#                     └── init.lua
+# run 'xonsh unlink_then_restore'
+# This will unlink dotfiles that are in conflict with the original, and
+# then, create symlink to this original dot files so that everything is
+# restored to their original settings.
+
+from pathlib import Path
+import glob
+# Exit immediately if a command exits with a non-zero status
+$XONSH_SUBPROC_CMD_RAISE_ERROR = True
+$XONSH_SHOW_TRACEBACK = True
+# Configuration
+home = ${'HOME'}
+DOTFILES_DIR = home + "/origdot"
+print(f"{DOTFILES_DIR=}")
+
+# Ensure we are running from the dotfiles directory
+if not Path(DOTFILES_DIR).exists():
+    print(f"Error: {DOTFILES_DIR} does not exist.")
+    exit 1
+
+cd @(DOTFILES_DIR)
+
+echo "Scanning for conflicting original dotfiles..."
+
+for dir in g`*/`:
+    print(f"processing {dir}:")
+    for path in Path(dir).rglob('*'):
+        if not path.is_file():
+            continue
+        first, *rest = str(path).split('/')
+        target = Path('/'.join([home, *rest]))
+        if not target.exists():
+            continue
+        print(f"\t{target=} exists")
+        if target.is_symlink():
+            print(f"\t\t{target=} was unlinked")
+            target.unlink()
+        else:
+            print(f"\tUnable to unlink {target=} it is a real file!")
+    stow @(dir)
+
+echo "--------------------------------------------------------"
+echo "Restoration of original dot files complete"

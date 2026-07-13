@@ -48,7 +48,7 @@ return {
       herdr_bin = nil,                -- auto-detected from HERDR_BIN_PATH
       floating_zindex_max = 50,       -- floats with zindex < this are treated as embedded sidebars
       ignore_previewwindows = false,  -- opt-in: also treat previewwindow windows (e.g. .dbout) as sidebars
-      -- auto_sync_herdr = true,      -- opt-in: sync Herdr-side scripts on update
+      auto_sync_herdr = true,      -- opt-in: sync Herdr-side scripts on update
     })
   end,
   keys = {

@@ -25,3 +25,9 @@ end
 
 require "lazy_setup"
 require "polish"
+vim.cmd [[
+    nmap T zt
+    nmap E $
+    nmap B ^
+    nmap o %
+]]
